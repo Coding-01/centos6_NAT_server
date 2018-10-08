@@ -1,0 +1,32 @@
+阻止MAC地址为B8:EE:65:DE:17:E3主机的所有通信：
+    iptables -A INPUT -m mac --mac-source B8:EE:65:DE:17:E3 -j DROP
+2、允许MAC地址为B8:EE:65:DE:17:E3主机访问22端口：
+    iptables -A INPUT -p tcp --destination-port 22 -m mac --mac-source B8:EE:65:DE:17:E3 -j ACCEPT
+3、允许IP地址为192.168.1.21(B8:EE:65:DE:17:E3)的主机通信，拒绝多有其他主机：
+    iptables -A INPUT -s 192.168.1.21 -m mac --mac-source B8:EE:65:DE:17:E3 -j ACCEPT
+    iptables -P INPUT DROP
+4、脚本限制MAC：
+    iptables -P FORWARD DROP
+    for mac in $(cat ipaddressfile); do
+	iptables -A FORWARD -m mac --mac-source $mac -j ACCEPT
+    done
+封ip段：
+封单个IP：
+    iptables -I INPUT -s 211.1.0.0 -j DROP
+封IP段的：
+    iptables -I INPUT -s 211.1.0.0/16 -j DROPiptables -I INPUT -s 211.2.0.0/16 -j DROP
+    iptables -I INPUT -s 211.3.0.0/16 -j DROP
+封整个段：
+    iptables -I INPUT -s 211.0.0.0/8 -j DROP
+封几个段：
+    iptables -I INPUT -s 61.37.80.0/24 -j DROPiptables -I INPUT -s 61.37.81.0/24 -j DROP
+服务器启动自运行三个方法：
+1、加到/etc/rc.local中
+2、iptables-save >;/etc/sysconfig/iptables  
+   //把当前的iptables规则放到/etc/sysconfig/iptables中，系统启动iptables时自动执行。
+3、service iptables save 
+   //或者把当前的iptables规则放/etc/sysconfig/iptables中，系统启动iptables时自动执行。
+后两种更好此，一般iptables服务会在network服务之前启来,更安全。
+
+解封：iptables -D INPUT -s IP地址 -j ACCEPT
+      iptables -F    全清
