@@ -3,7 +3,7 @@ centos6.8
 
 server IP:
 eth0   xxx.xx.xxx.xx         //Public network IP
-eth1   172.16.0.1            //local area network IP
+eth1   172.16.1.1            //local area network IP
 
 server:
 vim /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -14,7 +14,7 @@ cp ifcfg-eth0 ifcfg-eth1
 
 vim /etc/sysconfig/network-scripts/ifcfg-eth1
 HWADDR=00:0C:29:20:42:76
-IPADDR=192.168.0.1           
+IPADDR=172.16.1.1           
 NETMASK=255.255.255.0
 
 ifup eth1
@@ -67,6 +67,7 @@ net.netfilter.nf_conntrack_tcp_timeout_close_wait 60
 .netfilter.nf_conntrack_tcp_timeout_fin_wait = 120
 
 sysctl -p 
+Note: After executing this command, you should see the information without error or other warnings.
 
 DISABLE selinux: (C/S All disable)
 setenforce 0
@@ -88,11 +89,11 @@ iptables -t nat -F
 iptables -t nat -X
 iptables -F
 iptables -X
-iptables -A INPUT -p tcp -s 192.168.0.49 --dport 1082 -j ACCEPT
+#iptables -A INPUT -p tcp -s 192.168.0.49 --dport 1082 -j ACCEPT
 #iptables -A INPUT -p 22 -j ACCEPT
 #iptables -A INPUT -p 22 -j DROP
 #iptables -A INPUT -j DROP
-iptables -A INPUT -p tcp --dport 1082 -j DROP
+#iptables -A INPUT -p tcp --dport 1082 -j DROP
 cat $FILE | while read ipad mac
 do
     iptables -A FORWARD -s $ipad -m mac --mac-source $mac -j ACCEPT
@@ -100,7 +101,7 @@ do
 done
  
 #iptables -A FORWARD -o eth1 -m state --state  ESTABLISHED,RELATED -j ACCEPT
-iptables -t nat -A POSTROUTING -o eth0 -m iprange --src-range 192.168.0.1-192.168.0.254 -j SNAT --to <Public network ip>
+iptables -t nat -A POSTROUTING -o eth0 -m iprange --src-range 172.168.1.1-172.16.1.254 -j SNAT --to <Public network ip>
 #iptables -t nat -A PREROUTING -i eth0 -d <Public network ip> -p tcp --dport 80 -j DNAT --to-destination 192.168.0.140:80
 #iptables -t nat -I POSTROUTING -d <Public network ip> -p tcp --dport 80 -j SNAT --to 192.168.0.140:80
 #iptables -A FORWARD -o eth1 -d 192.168.0.140 -p tcp --dport 80 -j ACCEPT
@@ -115,7 +116,7 @@ chkconfig iptables on
 [root@bogon opop]# chmod +x gateway.sh  
 [root@bogon opop]# vim mac_new.txt
      
-    format：172.16.0.15     00:0c:29:93:70:dd 
+    format：172.16.1.15     00:0c:29:93:70:dd 
 
 Refresh gateway.sh:
 [root@bogon opop]# ./gateway.sh
@@ -145,25 +146,28 @@ TYPE=Ethernet
 ONBOOT=yes
 NM_CONTROLLED=yes
 BOOTPROTO=static        
-IPADDR=172.16.0.20
+IPADDR=172.16.1.20
 NETMASK=255.255.255.0
-  
+DNS1=<Public network DNS1>
+DNS2=<Public network DNS2>
+
+
 service network restart
  
  
-ping 172.16.0.1
+ping 172.16.1.1
 ping www.baidu.com
 dig www.baidu.com 
 
 
 open win10 start test：
-IP ADDRESS：172.16.0.30   
+IP ADDRESS：172.16.1.30   
 netmask：255.255.255.0
 default gateway：<server eth1 IP>
 DNS1：<public network DNS1>        
 DNS2：<public network DNS2>
 
 open cmd window
-ping 172.16.0.1
+ping 172.16.1.1
 ping www.baidu.com
 nslookup www.baidu.com
