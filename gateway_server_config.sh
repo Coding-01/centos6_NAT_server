@@ -148,6 +148,7 @@ NM_CONTROLLED=yes
 BOOTPROTO=static        
 IPADDR=172.16.1.20
 NETMASK=255.255.255.0
+GATEWAY=172.16.1.1	//server eth1 addr
 DNS1=<Public network DNS1>
 DNS2=<Public network DNS2>
 
